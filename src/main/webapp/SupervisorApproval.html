@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Approval</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="loadTable()">
+    <h1>Supervisor Approval From</h1>
+
+
+    
+    <div class="container">
+    	<h4>Form to approve</h4>
+        <table class="table table-dark table-striped table-hover table-bordered"  id="form_info" >
+            <tr>
+                <th>Event Description</th>
+                <th>Supervisor Approval</th>
+                <th>Department Head Approval</th>
+                <th>Benco Approval</th>
+                <th>Form Status</th>
+                <th>Reimbursement Amount</th>
+                <th>Reimbursement Status</th>
+                <th>Cost</th>
+                <th>Event Type</th>
+                <th>Location</th>
+                <th>Grading Format</th>
+            </tr>
+        </table>
+    </div>
+
+	<div class="container">
+		<div class="container form-inline">
+		    <label for="approval" class="form-group mb-2">Form Approval</label>
+		    <select id="approval" name="approval" class="form-group mx-sm-3 mb-2">
+		        <option value="true">Approve Form</option>
+		        <option value="false">Deny Form</option>
+		        <option selected hidden disabled  value > -- select an option -- </option>
+		    </select>
+	    </div>
+	
+		<div class="container form-inline">
+		    <label for="reason" class="form-group mb-2">Reason For Denial</label>
+		    <input type="text" id="reason" class="form-group mx-sm-3 mb-2">
+	    </div>
+	
+		<div class="container form-inline">
+	    	<button onclick="submitApproval()" class="btn btn-secondary">Submit Response</button>
+	    </div>
+    </div>
+
+	<br><br>
+	<div class="container">
+		<h5>You may also request additional Info from the Employee</h5>
+	
+		<div class="container form-inline">
+		    <label for="info" class="form-group mb-2">Request this Additional info from the Employee</label>
+		    <input type="text" id="info" class="form-group mx-sm-3 mb-2">
+	    </div>
+	
+		<div class="container form-inline">
+	    	<button onclick="submitAdditionalInfo()" class="btn btn-secondary">Request Additional Information</button>
+	    </div>
+    </div>
+
+
+</body>
+<script>
+    function submitAdditionalInfo(){
+
+        let info = document.getElementById("info").value;
+        let info_for = "employee"
+
+        let additional_info = {
+            "info_needed": info
+        }
+        console.log("Additional_info");
+        console.log(additional_info);
+
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function(){
+
+            if(this.readyState == 4 && this.status == 200){
+                console.log(this.responseText);
+                window.alert(this.responseText);
+                window.location.href = 'http://localhost:8080/Project1/EmployeeView.html';
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let form_id = urlParams.get("form_id");
+
+        xhttp.open("POST", `http://localhost:8080/Project1/addInfo.do?form_id=${form_id}&info_for=${info_for}`, true);
+
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+
+        xhttp.send(JSON.stringify(additional_info));
+    }
+
+
+    function submitApproval(){
+
+        let approval_value = document.getElementById("approval").value;
+        let reason = document.getElementById("reason").value;
+
+        let approval = {
+            "supervisor_approval": approval_value,
+            "supervisor_reason_for_denial": reason
+        }
+
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function(){
+
+            if(this.readyState == 4 && this.status == 200){
+                console.log(this.responseText);
+                window.alert(this.responseText);
+                window.location.href = 'http://localhost:8080/Project1/EmployeeView.html';
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let form_id = urlParams.get("form_id");
+
+        xhttp.open("POST", `http://localhost:8080/Project1/supervisorApproval.do?form_id=${form_id}`, true);
+
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+
+        xhttp.send(JSON.stringify(approval));
+    }
+
+    function loadTable(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let form = JSON.parse(this.responseText);
+                console.log(form);
+
+                let table = document.getElementById("form_info");
+                let row;
+
+                row = table.insertRow();
+                row.insertCell(0).innerHTML = form.form_event.description;
+                row.insertCell(1).innerHTML = form.supervisor_approval;
+                row.insertCell(2).innerHTML = form.department_head_approval;
+                row.insertCell(3).innerHTML = form.benco_approval;
+                row.insertCell(4).innerHTML = form.form_status;
+                row.insertCell(5).innerHTML = form.reimbursment_amount;
+                row.insertCell(6).innerHTML = form.reimbursment_status;
+                row.insertCell(7).innerHTML = form.form_event.cost;
+                row.insertCell(8).innerHTML = form.form_event.event_type;
+                row.insertCell(9).innerHTML = form.form_event.location;
+                row.insertCell(10).innerHTML = form.form_event.gradding_format;
+
+            }
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        let form_id = urlParams.get("form_id");
+
+        let url = `http://localhost:8080/Project1/viewForm.do?form_id=${form_id}`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+
+</script>
+</html>

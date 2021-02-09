@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reimbursement Form</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Reimbursement From</h1>
+
+    <br><br>
+
+    <div class="container form-inline">
+        <label for="start_date" class="form-group mb-2">Event Start Date</label>
+        <input type="date" id="start_date" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="end_date" class="form-group mb-2">Event End Date</label>
+        <input type="date" id="end_date" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="start_time" class="form-group mb-2">What time will the event start each day</label>
+        <input type="text" id="start_time" placeholder="2:30pm" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="end_time" class="form-group mb-2">What time will the event end each day</label> <!-- concat start time with end time for event timeframe -->
+        <input type="text" id="end_time" placeholder="4:45pm" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="location" class="form-group mb-2">Event location</label>
+        <input type="text" id="location" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="description" class="form-group mb-2">Description of the Event</label>
+        <input type="text" id="description" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="cost" class="form-group mb-2">Event Cost</label>
+        <input type="number" id="cost" min="0.01" max="1000000" step="0.01" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="grading_format" class="form-group mb-2">Grading Format of the event</label>
+        <select id="grading_format" name="grading_format" class="form-group mx-sm-3 mb-2">
+            <option value="letter_grade">Letter Grade</option> <!--Add the rest of the options once decied-->
+            <option value="presentation">Presentation to Management</option>
+            <option value="both">Letter Grade and Presentation to Management</option>
+            <option selected hidden disabled  value > -- select an option -- </option>
+        </select>
+    </div>
+
+    <div class="container form-inline">
+        <label for="passing_grade" class="form-group mb-2">Passing Grade for Event</label>
+        <select id="passing_grade" name="passing_grade" class="form-group mx-sm-3 mb-2">
+            <option value="A">A</option> 
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="F">F</option>
+            <option selected  value="B" >Default Option</option>
+        </select>
+    </div>
+
+    <div class="container form-inline">
+        <label for="event_type" class="form-group mb-2">Event Type</label>
+        <select id="event_type" name="event_type" class="form-group mx-sm-3 mb-2">
+            <option value="university_course">University Course</option>
+            <option value="seminar">Seminar</option>
+            <option value="certification_preparation_class">Certification Preparation Class</option>
+            <option value="certification">Certification</option>
+            <option value="technical_training">Technical Training</option>
+            <option value="other">Other</option>
+            <option selected hidden disabled  value > -- select an option -- </option>
+        </select>
+    </div>
+
+    <!-- <div class="container form-inline">
+        <label for="work_day_missing_start" class="form-group mb-2">First Work Day missing</label>
+        <input type="date" id="work_day_missing_start" class="form-group mx-sm-3 mb-2">
+    </div>
+
+    <div class="container form-inline">
+        <label for="work_day_missing_end" class="form-group mb-2">last Work Day missing</label>
+        <input type="date" id="work_day_missing_end" class="form-group mx-sm-3 mb-2">    
+    </div> -->
+
+    <div class="container form-group">
+        <button onclick="submit_form()" class="btn btn-secondary">Submit Form</button>
+    </div>
+
+
+</body>
+<script>
+    function submit_form(){
+
+        let event_start_date = document.getElementById("start_date").value;
+        let event_end_date = document.getElementById("end_date").value;
+        let start_time = document.getElementById("start_time").value;
+        let end_time = document.getElementById("end_time").value;
+        let location = document.getElementById("location").value;
+        let description = document.getElementById("description").value;
+        let cost = document.getElementById("cost").value;
+        let grading_format = document.getElementById("grading_format").value;
+        let event_type = document.getElementById("event_type").value;
+        // let work_day_missing_start = document.getElementById("work_day_missing_start").value;
+        // let work_day_missing_end = document.getElementById("work_day_missing_end").value;
+
+        let event = {
+            event_start_date: event_start_date,
+            event_end_date: event_end_date,
+            event_timeframe: start_time + " to " + end_time,
+            location: location,
+            description: description,
+            cost: cost,
+            grading_format: grading_format,
+            // work_day_missing_start: work_day_missing_start,
+            // work_day_missing_end: work_day_missing_end,
+            event_type: event_type
+        }
+
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function(){
+
+            if(this.readyState == 4 && this.status == 200){
+                console.log(this.responseText);
+                window.alert(this.responseText);
+                window.location.href = 'http://localhost:8080/Project1/EmployeeView.html';
+            }
+        }
+        let passing_grade = document.getElementById("passing_grade").value;
+
+        xhttp.open("POST", `http://localhost:8080/Project1/submitForm.do?passing_grade=${passing_grade}`, true);
+
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+
+        xhttp.send(JSON.stringify(event));
+    }
+</script>
+</html>

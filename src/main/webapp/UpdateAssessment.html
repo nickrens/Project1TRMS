@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Assessment</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Update Assessment</h1>
+
+	<div class="container">
+		<div class="form-inline">
+		    <label for="grade" class="form-group mb-2">Grade Received</label>
+		    <select id="grade" name="grade" class="form-group mx-sm-3 mb-2">
+		        <option value="A">A</option> 
+		        <option value="B">B</option>
+		        <option value="C">C</option>
+		        <option value="D">D</option>
+		        <option value="F">F</option>
+		        <option selected hidden disabled  value > -- select an option -- </option>
+		    </select>
+	    </div>
+	
+		<div class="form-inline">
+		    <label for="presentation" class="form-group mb-2">Presentation</label>
+		    <input type="text" id="presentation" value="Enter your presentation" class="form-group mx-sm-3 mb-2">
+	    </div>
+	
+		<div class="form-inline">
+	    	<button onclick="submit()" class="btn btn-secondary">Submit</button>
+	    </div>
+    </div>
+
+</body>
+<script>
+    function submit(){
+        let grade = document.getElementById("grade").value;
+        let presentation = document.getElementById("presentation").value;
+
+        let assessment = {
+            "grade": grade,
+            "presentation": presentation,
+            "passing_grade": '?'
+        }
+
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                window.alert("Assessment Updated");
+                window.location.href = 'http://localhost:8080/Project1/EmployeeView.html';
+            }
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        let form_id = urlParams.get("form_id");
+
+        xhttp.open("POST", `http://localhost:8080/Project1/updateAssessment.do?form_id=${form_id}`, true);
+
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+
+        xhttp.send(JSON.stringify(assessment));
+    }
+
+    function loadTable(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let form = JSON.parse(this.responseText);
+                console.log(form);
+
+                let table = document.getElementById("form_info");
+                let row;
+
+                row = table.insertRow();
+                row.insertCell(0).innerHTML = form.form_event.description;
+                row.insertCell(1).innerHTML = form.supervisor_approval;
+                row.insertCell(2).innerHTML = form.department_head_approval;
+                row.insertCell(3).innerHTML = form.benco_approval;
+                row.insertCell(4).innerHTML = form.form_status;
+                row.insertCell(5).innerHTML = form.reimbursment_amount;
+                row.insertCell(6).innerHTML = form.reimbursment_status;
+                row.insertCell(7).innerHTML = form.form_event.cost;
+                row.insertCell(8).innerHTML = form.form_event.event_type;
+                row.insertCell(9).innerHTML = form.form_event.location;
+                row.insertCell(10).innerHTML = form.form_event.gradding_format;
+
+            }
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        let form_id = urlParams.get("form_id");
+
+        let url = `http://localhost:8080/Project1/viewForm.do?form_id=${form_id}`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+</script>
+</html>

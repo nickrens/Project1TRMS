@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Page</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+    a:hover {
+	  	color: white;
+	  	background-color: transparent;
+	  	text-decoration: underline;
+	}
+    
+    </style>
+</head>
+<body onload="loadTables()">
+
+	<div class="container">
+	    <h1>Employee Page</h1>
+	    <h3 id="amount_left">Reimbursement amount available: $</h3>
+	    <button onclick="get_form()" class="btn btn-secondary">Fill out Reimbursement Form</button>
+	</div>
+
+	<br>
+
+    <div class="container">
+        <h4>Forms you have filled out this year</h4>
+
+        <table class="table table-dark table-striped table-hover table-bordered"  id="form_info" >
+            <tr>
+                <th>Event Description</th>
+                <th>Supervisor Approval</th>
+                <th>Department Head Approval</th>
+                <th>Benco Approval</th>
+                <th>Form Status</th>
+                <th>Reimbursement Amount</th>
+                <th>Reimbursement Status</th>
+                <th>Update Assessment</th>
+            </tr>
+        </table>
+    </div>
+
+    <div class="container" id="notifications_table"></div>
+
+    <div class="container" id="supervisor_to_approve"></div>
+
+    <div class="container" id="dh_to_approve"></div>
+
+    <div class="container" id="benco_to_approve"></div>
+
+    <div class="container" id="grade_to_approve"></div>
+
+    <div class="container" id="presentation_to_approve"></div>
+</body>
+<script>
+    function loadTables(){
+        get_employee();
+        loadForms();
+        loadNotifications();
+        loadFormsForSupervisor();
+        loadFormsForDH();
+        loadFormsForBenco();
+        loadFormsToApproveGrades();
+        getPresentationsToApprove();
+    }
+
+    function loadNotifications(){
+
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let forms = JSON.parse(this.responseText);
+                console.log(forms);
+
+                if(forms.length == 0){
+                    return;
+                }
+
+                let div = document.getElementById("notifications_table");
+                let label = document.createElement("h4");
+                label.innerHTML = "Notifications about additional info needed";
+
+                div.appendChild(label);
+
+                let table = document.createElement("table");
+                table.setAttribute("class", "table table-dark table-striped table-hover table-bordered");
+                table.setAttribute("id", "n_table");
+                div.appendChild(table);
+                
+                table = document.getElementById("n_table");
+                let thead = table.createTHead();
+                thead.setAttribute("id", "info_head");
+                thead = document.getElementById("info_head");
+
+
+                let row1 = thead.insertRow();
+                let tr1 = document.createElement("th");
+                tr1.innerHTML = "Event Description";
+                row1.appendChild(tr1);
+
+                let tr2 = document.createElement("th");
+                tr2.innerHTML = "Form Submitted by";
+                row1.appendChild(tr2);
+
+                let tr3 = document.createElement("th");
+                tr3.innerHTML = "Information Requested";
+                row1.appendChild(tr3);
+
+                let tr4 = document.createElement("th");
+                tr4.innerHTML = "Mark as comlpeted";
+                row1.appendChild(tr4);
+
+                let row;
+                let button;
+                forms.forEach(element => {
+                    row = table.insertRow();
+                    row.insertCell(0).innerHTML = element.form_event.description;
+                    row.insertCell(1).innerHTML = element.form_employee.name;
+                    row.insertCell(2).innerHTML = element.form_additional_info.info_needed;
+                    row.insertCell(3).innerHTML = `<button onclick='remove_notification(${element.id})'>Remove Notification</button>`;
+                });
+                
+
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/veiwNotifications.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+
+    }
+
+    function remove_notification(form_id){
+
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+
+                window.alert(this.responseText);
+                location.reload();
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/removeNotification.do?form_id=${form_id}`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+
+
+    }
+
+    function loadFormsForSupervisor(){
+
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let forms = JSON.parse(this.responseText);
+                console.log(forms);
+
+                if(forms.length == 0){
+                    return;
+                }
+
+                let div = document.getElementById("supervisor_to_approve");
+                let label = document.createElement("h4");
+                label.innerHTML = "Forms you need to approve as Supervisor";
+
+                div.appendChild(label);
+
+                let table = document.createElement("table");
+                table.setAttribute("class", "table table-dark table-striped table-hover table-bordered");
+                table.setAttribute("id", "supervisor_table");
+                div.appendChild(table);
+                
+                table = document.getElementById("supervisor_table");
+                let thead = table.createTHead();
+                thead.setAttribute("id", "supervisor_head");
+                thead = document.getElementById("supervisor_head");
+
+
+                let row1 = thead.insertRow();
+                let tr1 = document.createElement("th");
+                tr1.innerHTML = "Event Description";
+                row1.appendChild(tr1);
+
+                let tr2 = document.createElement("th");
+                tr2.innerHTML = "Form Submitted by";
+                row1.appendChild(tr2);
+
+                let tr3 = document.createElement("th");
+                tr3.innerHTML = "Location";
+                row1.appendChild(tr3);
+
+                let tr4 = document.createElement("th");
+                tr4.innerHTML = "Go to approval page";
+                row1.appendChild(tr4);
+
+                let row;
+                let button;
+                forms.forEach(element => {
+                    row = table.insertRow();
+                    row.insertCell(0).innerHTML = element.form_event.description;
+                    row.insertCell(1).innerHTML = element.form_employee.name;
+                    row.insertCell(2).innerHTML = element.form_event.location;
+                    row.insertCell(3).innerHTML = `<a href="http://localhost:8080/Project1/SupervisorApproval.html?form_id=${element.id}">Review Form</a>`;
+                });
+                
+
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/getSupervisorFormsToApprove.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+
+    }
+
+    function loadFormsForDH(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let forms = JSON.parse(this.responseText);
+                console.log(forms);
+
+                if(forms.length == 0){
+                    return;
+                }
+
+                let div = document.getElementById("dh_to_approve");
+                let label = document.createElement("h4");
+                label.innerHTML = "Forms you need to approve as Department Head";
+
+                div.appendChild(label);
+
+                let table = document.createElement("table");
+                table.setAttribute("class", "table table-dark table-striped table-hover table-bordered");
+                table.setAttribute("id", "dh_table");
+                div.appendChild(table);
+                
+                table = document.getElementById("dh_table");
+                let thead = table.createTHead();
+                thead.setAttribute("id", "dh_head");
+                thead = document.getElementById("dh_head");
+
+
+                let row1 = thead.insertRow();
+                let tr1 = document.createElement("th");
+                tr1.innerHTML = "Event Description";
+                row1.appendChild(tr1);
+
+                let tr2 = document.createElement("th");
+                tr2.innerHTML = "Form Submitted by";
+                row1.appendChild(tr2);
+
+                let tr3 = document.createElement("th");
+                tr3.innerHTML = "Location";
+                row1.appendChild(tr3);
+
+                let tr4 = document.createElement("th");
+                tr4.innerHTML = "Go to approval page";
+                row1.appendChild(tr4);
+
+                let row;
+                let button;
+                forms.forEach(element => {
+                    row = table.insertRow();
+                    row.insertCell(0).innerHTML = element.form_event.description;
+                    row.insertCell(1).innerHTML = element.form_employee.name;
+                    row.insertCell(2).innerHTML = element.form_event.location;
+                    row.insertCell(3).innerHTML = `<a href="http://localhost:8080/Project1/DHApproval.html?form_id=${element.id}">Review Form</a>`;
+                });
+                
+
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/getDHFormsToApprove.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+
+    function loadFormsForBenco(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let forms = JSON.parse(this.responseText);
+                console.log(forms);
+
+                if(forms.length == 0){
+                    return;
+                }
+
+                let div = document.getElementById("benco_to_approve");
+                let label = document.createElement("h4");
+                label.innerHTML = "Forms you need to approve as Benco";
+
+                div.appendChild(label);
+
+                let table = document.createElement("table");
+                table.setAttribute("class", "table table-dark table-striped table-hover table-bordered");
+                table.setAttribute("id", "benco_table");
+                div.appendChild(table);
+                
+                table = document.getElementById("benco_table");
+                let thead = table.createTHead();
+                thead.setAttribute("id", "benco_head");
+                thead = document.getElementById("benco_head");
+
+
+                let row1 = thead.insertRow();
+                let tr1 = document.createElement("th");
+                tr1.innerHTML = "Event Description";
+                row1.appendChild(tr1);
+
+                let tr2 = document.createElement("th");
+                tr2.innerHTML = "Form Submitted by";
+                row1.appendChild(tr2);
+
+                let tr3 = document.createElement("th");
+                tr3.innerHTML = "Location";
+                row1.appendChild(tr3);
+
+                let tr4 = document.createElement("th");
+                tr4.innerHTML = "Go to approval page";
+                row1.appendChild(tr4);
+
+                let row;
+                let button;
+                forms.forEach(element => {
+                    row = table.insertRow();
+                    row.insertCell(0).innerHTML = element.form_event.description;
+                    row.insertCell(1).innerHTML = element.form_employee.name;
+                    row.insertCell(2).innerHTML = element.form_event.location;
+                    row.insertCell(3).innerHTML = `<a href="http://localhost:8080/Project1/BencoApproval.html?form_id=${element.id}">Review Form</a>`;
+                });
+                
+
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/getBencoFormsToApprove.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+
+    function loadForms(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let forms = JSON.parse(this.responseText);
+                console.log(forms);
+
+                let table = document.getElementById("form_info");
+                let row;
+
+                forms.forEach(element => {
+                    row = table.insertRow();
+                    row.insertCell(0).innerHTML = element.form_event.description;
+                    row.insertCell(1).innerHTML = element.supervisor_approval;
+                    row.insertCell(2).innerHTML = element.department_head_approval;
+                    row.insertCell(3).innerHTML = element.benco_approval;
+                    row.insertCell(4).innerHTML = element.form_status;
+                    row.insertCell(5).innerHTML = element.reimbursment_amount;
+                    row.insertCell(6).innerHTML = element.reimbursment_status;
+                    row.insertCell(7).innerHTML = `<a href="UpdateAssessment.html?form_id=${element.id}">Update Assessment</a>`;
+                });
+
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/viewForms.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+
+    function loadFormsToApproveGrades(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let forms = JSON.parse(this.responseText);
+                console.log(forms);
+
+                if(forms.length == 0){
+                    return;
+                }
+
+                let div = document.getElementById("grade_to_approve");
+                let label = document.createElement("h4");
+                label.innerHTML = "Forms you need to approve Final Grade";
+
+                div.appendChild(label);
+
+                let table = document.createElement("table");
+                table.setAttribute("class", "table table-dark table-striped table-hover table-bordered");
+                table.setAttribute("id", "grade_table");
+                div.appendChild(table);
+                
+                table = document.getElementById("grade_table");
+                let thead = table.createTHead();
+                thead.setAttribute("id", "grade_head");
+                thead = document.getElementById("grade_head");
+
+
+                let row1 = thead.insertRow();
+                let tr1 = document.createElement("th");
+                tr1.innerHTML = "Event Description";
+                row1.appendChild(tr1);
+
+                let tr2 = document.createElement("th");
+                tr2.innerHTML = "Form Submitted by";
+                row1.appendChild(tr2);
+
+                let tr3 = document.createElement("th");
+                tr3.innerHTML = "Grade";
+                row1.appendChild(tr3);
+
+                let tr4 = document.createElement("th");
+                tr4.innerHTML = "Go to approval page";
+                row1.appendChild(tr4);
+
+                let row;
+                let button;
+                forms.forEach(element => {
+                    row = table.insertRow();
+                    row.insertCell(0).innerHTML = element.form_event.description;
+                    row.insertCell(1).innerHTML = element.form_employee.name;
+                    row.insertCell(2).innerHTML = element.form_assessment.grade;
+                    row.insertCell(3).innerHTML = `<a href="http://localhost:8080/Project1/BencoApproveGrade.html?form_id=${element.id}">Review Grade</a>`;
+                });
+                
+
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/getGradesToApprove.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+
+    function getPresentationsToApprove(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                console.log("Call Success");
+                let forms = JSON.parse(this.responseText);
+                console.log(forms);
+
+                if(forms.length == 0){
+                    return;
+                }
+
+                let div = document.getElementById("grade_to_approve");
+                let label = document.createElement("h4");
+                label.innerHTML = "Forms you need to approve Final Grade";
+
+                div.appendChild(label);
+
+                let table = document.createElement("table");
+                table.setAttribute("class", "table table-dark table-striped table-hover table-bordered");
+                table.setAttribute("id", "grade_table");
+                div.appendChild(table);
+                
+                table = document.getElementById("grade_table");
+                let thead = table.createTHead();
+                thead.setAttribute("id", "grade_head");
+                thead = document.getElementById("grade_head");
+
+
+                let row1 = thead.insertRow();
+                let tr1 = document.createElement("th");
+                tr1.innerHTML = "Event Description";
+                row1.appendChild(tr1);
+
+                let tr2 = document.createElement("th");
+                tr2.innerHTML = "Form Submitted by";
+                row1.appendChild(tr2);
+
+                let tr4 = document.createElement("th");
+                tr4.innerHTML = "Go to approval page";
+                row1.appendChild(tr4);
+
+                let row;
+                let button;
+                forms.forEach(element => {
+                    row = table.insertRow();
+                    row.insertCell(0).innerHTML = element.form_event.description;
+                    row.insertCell(1).innerHTML = element.form_employee.name;
+                    row.insertCell(2).innerHTML = `<a href="http://localhost:8080/Project1/SupervisorApprovePresentation.html?form_id=${element.id}">Review Presentation</a>`;
+                });
+                
+
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/getPresenationsToApprove.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+
+    function get_form(){
+        window.location.href = 'http://localhost:8080/Project1/Form.html';
+    }
+
+    function get_employee(){
+        let xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200) {
+                let employee = JSON.parse(this.responseText);
+
+                let item = document.getElementById("amount_left");
+                item.innerHTML += Number(employee.reimbursement_remaining).toFixed(2) +  `<br>Logged in as: ${employee.name}`;
+            }
+        }
+
+        let url = `http://localhost:8080/Project1/getEmployee.do`;
+        xhttp.open("GET", url, true);
+
+        xhttp.send();
+    }
+</script>
+</html>
