@@ -19,7 +19,7 @@ The Tuition Reimbursement System, TRMS, allows users to submit reimbursements fo
 git clone https://github.com/nickrens/Project1TRMS.git
 
 create a db to match this ERD
-![ERD](project1ERD.png)
+![ERD](project1_ERD.png)
 create a connection.properties file with these fields:
 * url
 * ursername
