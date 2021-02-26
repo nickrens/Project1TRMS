@@ -1,5 +1,4 @@
 # Project1TRMS
-
 ## Project Description
 The purpose of TRMS is to provide a system that encourages quality knowledge growth relevant to an individual’s expertise.   Currently, TRMS provides reimbursements for university courses, seminars, certification preparation classes, certifications, and technical training.  The previous system relied solely on email communication, requiring manual lookups of available funds and was error-prone due to inbox clutter and incorrect routing of tasks.
 
